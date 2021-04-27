@@ -125,6 +125,22 @@ void lcdDrawFastVLine(uint16_t x, uint16_t y, uint16_t h, uint16_t color) {
     }
 }
 
+void lcdDrawFastHLine(uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
+    if(x >= LCD_WIDTH || y >= LCD_HEIGHT || w < 1) return;
+    if(x + w - 1 >= LCD_WIDTH) {
+        w = LCD_WIDTH - x;
+    }
+    if(w < 2) {
+        lcdDrawPixel(x, y, color);
+        return;
+    }
+
+    lcdDrawWindow(x, y, x + w - 1, y);
+    while(w--) {
+        lcdWrite16BData(color);
+    }
+}
+
 int main() {
     stdio_init_all();
     initPins();
