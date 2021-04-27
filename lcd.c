@@ -48,7 +48,7 @@ void initPins() {
     gpio_pull_up(RESET_PIN);
 }
 
-void drawWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
+void lcdDrawWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
     // Column start and end
     lcdWrite8BCMD(CMD_COL_ADDRESS_SET);
     lcdWrite8BData(x0 >> 8);
@@ -65,6 +65,13 @@ void drawWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 
     // Draw the window
     lcdWrite8BCMD(CMD_MEMORY_WRITE);
+}
+
+void lcdDrawPixel(uint32_t x, uint32_t y, uint16_t color) {
+    if(x >= LCD_WIDTH || y >= LCD_HEIGHT) return;
+
+    lcdDrawWindow(x, y, x+1, y+1);
+    lcdWrite16BData(color);
 }
 
 void initLCD() {
@@ -102,10 +109,26 @@ void initLCD() {
     lcdWrite8BCMD(CMD_DISPLAY_ON);
 }
 
+void lcdDrawFastVLine(uint16_t x, uint16_t y, uint16_t h, uint16_t color) {
+    if(x >= LCD_WIDTH || y >= LCD_HEIGHT || h < 1) return;
+    if(y + h - 1 >= LCD_HEIGHT) {
+        h = LCD_HEIGHT - y;
+    }
+    if(h < 2) {
+        lcdDrawPixel(x, y, color);
+        return;
+    }
+
+    lcdDrawWindow(x, y, x, y + h - 1);
+    while(h--) {
+        lcdWrite16BData(color);
+    }
+}
+
 int main() {
     stdio_init_all();
     initPins();
     initLCD();
-
+    
     while(true) {}
 }
