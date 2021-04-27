@@ -1,6 +1,10 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+// LCD height and width
+#define LCD_HEIGHT 320
+#define LCD_WIDTH 240
+
 // Primary Colors
 #define COLOR_BLACK       0x0000 
 #define COLOR_NAVY        0x000F
@@ -64,5 +68,7 @@
 #define CMD_MEMORY_WRITE 0x2C
 #define CMD_MEMORY_WRITE_CONTINUE 0x3C
 #define CMD_MEMORY_ACCESS_CONTROL 0x36
+#define CMD_COL_ADDRESS_SET 0x2A
+#define CMD_ROW_ADDRESS_SET 0x2B
 
 #endif // DEFINES_H

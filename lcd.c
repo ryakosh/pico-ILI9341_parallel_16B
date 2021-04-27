@@ -48,6 +48,25 @@ void initPins() {
     gpio_pull_up(RESET_PIN);
 }
 
+void drawWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
+    // Column start and end
+    lcdWrite8BCMD(CMD_COL_ADDRESS_SET);
+    lcdWrite8BData(x0 >> 8);
+    lcdWrite8BData(x0 & 0xFF);
+    lcdWrite8BData(x1 >> 8);
+    lcdWrite8BData(x1 & 0xFF);
+
+    // Row start and end
+    lcdWrite8BCMD(CMD_ROW_ADDRESS_SET);
+    lcdWrite8BData(y0 >> 8);
+    lcdWrite8BData(y0 & 0xFF);
+    lcdWrite8BData(y1 >> 8);
+    lcdWrite8BData(y1 & 0xFF);
+
+    // Draw the window
+    lcdWrite8BCMD(CMD_MEMORY_WRITE);
+}
+
 void initLCD() {
     int i = 0;
 
