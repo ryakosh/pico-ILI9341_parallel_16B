@@ -163,6 +163,10 @@ void lcdDrawFillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t co
     }
 }
 
+void lcdDrawFillScreen(uint16_t color) {
+    lcdDrawFillRect(0, 0, LCD_WIDTH, LCD_HEIGHT, color);
+}
+
 int main() {
     stdio_init_all();
     initPins();
