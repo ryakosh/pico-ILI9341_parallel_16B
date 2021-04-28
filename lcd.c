@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include "pico/stdlib.h"
 #include "defines.h"
 
@@ -167,10 +168,113 @@ void lcdDrawFillScreen(uint16_t color) {
     lcdDrawFillRect(0, 0, LCD_WIDTH, LCD_HEIGHT, color);
 }
 
+void lcdDrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+{
+    bool steep;
+    int16_t dx, dy, err, ystep, xbegin;
+
+	if ((y0 < 0 && y1 < 0) || (y0 > LCD_HEIGHT && y1 > LCD_HEIGHT)) return;
+	if ((x0 < 0 && x1 < 0) || (x0 > LCD_WIDTH && x1 > LCD_WIDTH)) return;
+	if (x0 < 0) x0 = 0;
+	if (x1 < 0) x1 = 0;
+	if (y0 < 0) y0 = 0;
+	if (y1 < 0) y1 = 0;
+
+	if (y0 == y1) {
+		if (x1 > x0) {
+			lcdDrawFastHLine(x0, y0, x1 - x0 + 1, color);
+		}
+		else if (x1 < x0) {
+			lcdDrawFastHLine(x1, y0, x0 - x1 + 1, color);
+		}
+		else {
+			lcdDrawPixel(x0, y0, color);
+		}
+		return;
+	}
+	else if (x0 == x1) {
+		if (y1 > y0) {
+			lcdDrawFastVLine(x0, y0, y1 - y0 + 1, color);
+		}
+		else {
+			lcdDrawFastVLine(x0, y1, y0 - y1 + 1, color);
+		}
+		return;
+	}
+
+	steep = abs(y1 - y0) > abs(x1 - x0);
+	if (steep) {
+		swap(x0, y0);
+		swap(x1, y1);
+	}
+	if (x0 > x1) {
+		swap(x0, x1);
+		swap(y0, y1);
+	}
+
+	dx = x1 - x0;
+	dy = abs(y1 - y0);
+
+	err = dx / 2;
+
+	if (y0 < y1) {
+		ystep = 1;
+	}
+	else {
+		ystep = -1;
+	}
+
+	xbegin = x0;
+
+	if (steep) {
+		for (; x0 <= x1; x0++) {
+			err -= dy;
+			if (err < 0) {
+				int16_t len = x0 - xbegin;
+				if (len) {
+					lcdDrawFastVLine(y0, xbegin, len + 1, color);
+				}
+				else {
+					lcdDrawPixel(y0, x0, color);
+				}
+				xbegin = x0 + 1;
+				y0 += ystep;
+				err += dx;
+			}
+		}
+		if (x0 > xbegin + 1) {
+			lcdDrawFastVLine(y0, xbegin, x0 - xbegin, color);
+		}
+
+	}
+	else {
+		for (; x0 <= x1; x0++) {
+			err -= dy;
+			if (err < 0) {
+				int16_t len = x0 - xbegin;
+				if (len) {
+					lcdDrawFastHLine(xbegin, y0, len + 1, color);
+				}
+				else {
+					lcdDrawPixel(x0, y0, color);
+				}
+				xbegin = x0 + 1;
+				y0 += ystep;
+				err += dx;
+			}
+		}
+		if (x0 > xbegin + 1) {
+			lcdDrawFastHLine(xbegin, y0, x0 - xbegin, color);
+		}
+	}
+}
+
 int main() {
     stdio_init_all();
     initPins();
     initLCD();
+
+    lcdDrawLine(0, 0, 240, 320, COLOR_BLACK);
 
     while(true) {}
 }
