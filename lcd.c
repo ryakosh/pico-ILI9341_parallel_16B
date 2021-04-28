@@ -299,6 +299,10 @@ void lcdDrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 	}
 }
 
+void lcdInvertDisplay(bool i) {
+    lcdWrite8BCMD(i ? CMD_INVERSION_ON : CMD_INVERSION_OFF);
+}
+
 uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
     return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
 }

@@ -78,6 +78,8 @@
 #define CMD_MEMORY_WRITE_CONTINUE 0x3C
 #define CMD_COL_ADDRESS_SET 0x2A
 #define CMD_ROW_ADDRESS_SET 0x2B
+#define CMD_INVERSION_OFF 0x20
+#define CMD_INVERSION_ON 0x21
 
 #define swap(a, b) { int16_t t = a; a = b; b = t; }
 
