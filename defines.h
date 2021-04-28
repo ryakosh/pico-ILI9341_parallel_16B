@@ -71,4 +71,6 @@
 #define CMD_COL_ADDRESS_SET 0x2A
 #define CMD_ROW_ADDRESS_SET 0x2B
 
+#define swap(a, b) { int16_t t = a; a = b; b = t; }
+
 #endif // DEFINES_H
