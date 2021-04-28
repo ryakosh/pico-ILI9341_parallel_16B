@@ -269,6 +269,10 @@ void lcdDrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 	}
 }
 
+uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
+    return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+}
+
 int main() {
     stdio_init_all();
     initPins();
