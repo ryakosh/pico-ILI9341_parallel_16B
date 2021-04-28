@@ -67,8 +67,8 @@ void lcdDrawWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
     lcdWrite8BCMD(CMD_MEMORY_WRITE);
 }
 
-void lcdDrawPixel(uint32_t x, uint32_t y, uint16_t color) {
-    if(x >= LCD_WIDTH || y >= LCD_HEIGHT) return;
+void lcdDrawPixel(int16_t x, int16_t y, uint16_t color) {
+    if((x < 0) || (x >= LCD_WIDTH) || (y < 0) || (y >= LCD_HEIGHT)) return;
 
     lcdDrawWindow(x, y, x+1, y+1);
     lcdWrite16BData(color);
@@ -109,7 +109,7 @@ void initLCD() {
     lcdWrite8BCMD(CMD_DISPLAY_ON);
 }
 
-void lcdDrawFastVLine(uint16_t x, uint16_t y, uint16_t h, uint16_t color) {
+void lcdDrawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
     if(x >= LCD_WIDTH || y >= LCD_HEIGHT || h < 1) return;
     if(y + h - 1 >= LCD_HEIGHT) {
         h = LCD_HEIGHT - y;
@@ -125,7 +125,7 @@ void lcdDrawFastVLine(uint16_t x, uint16_t y, uint16_t h, uint16_t color) {
     }
 }
 
-void lcdDrawFastHLine(uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
+void lcdDrawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
     if(x >= LCD_WIDTH || y >= LCD_HEIGHT || w < 1) return;
     if(x + w - 1 >= LCD_WIDTH) {
         w = LCD_WIDTH - x;
@@ -141,7 +141,7 @@ void lcdDrawFastHLine(uint16_t x, uint16_t y, uint16_t w, uint16_t color) {
     }
 }
 
-void lcdDrawFillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color) {
+void lcdDrawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
     if(x >= LCD_WIDTH || y >= LCD_HEIGHT || w < 1 || h < 1) return;
     if((x + w - 1) >= LCD_WIDTH) {
         w = LCD_WIDTH - x;
@@ -149,7 +149,7 @@ void lcdDrawFillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t co
     if((y + h - 1) >= LCD_HEIGHT) {
         h = LCD_WIDTH - y;
     }
-    if(w < 2 || h < 2) {
+    if(w == 1 || h == 1) {
         lcdDrawPixel(x, y, color);
         return;
     }
@@ -171,6 +171,6 @@ int main() {
     stdio_init_all();
     initPins();
     initLCD();
-    
+
     while(true) {}
 }
