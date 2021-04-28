@@ -3,6 +3,9 @@
 #include "pico/stdlib.h"
 #include "defines.h"
 
+static uint16_t _curWidth = LCD_WIDTH;
+static uint16_t _curHeight = LCD_HEIGHT;
+
 void writeStrobe() {
     gpio_put(WRITE_ENABLE_PIN, WRITE_ENABLE_IDLE);
     gpio_put(WRITE_ENABLE_PIN, WRITE_ENABLE_ACTIVE);
@@ -69,10 +72,38 @@ void lcdDrawWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 }
 
 void lcdDrawPixel(int16_t x, int16_t y, uint16_t color) {
-    if((x < 0) || (x >= LCD_WIDTH) || (y < 0) || (y >= LCD_HEIGHT)) return;
+    if((x < 0) || (x >= _curWidth) || (y < 0) || (y >= _curHeight)) return;
 
     lcdDrawWindow(x, y, x+1, y+1);
     lcdWrite16BData(color);
+}
+
+void lcdSetRotation(uint8_t m) {
+    lcdWrite8BCMD(CMD_MEMORY_ACCESS_CONTROL);
+
+    switch((m % 4)) {
+        case 0:
+        lcdWrite8BData(PRM_MEMORY_ACCESS_CONTROL_MX | PRM_MEMORY_ACCESS_CONTROL_BGR);
+        _curWidth  = LCD_WIDTH;
+        _curHeight = LCD_HEIGHT;
+        break;
+        case 1:
+        lcdWrite8BData(PRM_MEMORY_ACCESS_CONTROL_MV | PRM_MEMORY_ACCESS_CONTROL_BGR);
+        _curWidth  = LCD_HEIGHT;
+        _curHeight = LCD_WIDTH;
+        break;
+        case 2:
+        lcdWrite8BData(PRM_MEMORY_ACCESS_CONTROL_MY | PRM_MEMORY_ACCESS_CONTROL_BGR);
+        _curWidth  = LCD_WIDTH;
+        _curHeight = LCD_HEIGHT;
+        break;
+        case 3:
+        lcdWrite8BData(PRM_MEMORY_ACCESS_CONTROL_MX | PRM_MEMORY_ACCESS_CONTROL_MY |
+            PRM_MEMORY_ACCESS_CONTROL_MV | PRM_MEMORY_ACCESS_CONTROL_BGR);
+        _curWidth  = LCD_HEIGHT;
+        _curHeight = LCD_WIDTH;
+        break;
+    }
 }
 
 void initLCD() {
@@ -95,9 +126,8 @@ void initLCD() {
     lcdWrite8BCMD(CMD_PIXEL_FORMAT);
     lcdWrite8BData(PRM_PIXEL_FORMAT_16B);
 
-    // Set LCD to use RGB instead of BGR
-    lcdWrite8BCMD(CMD_MEMORY_ACCESS_CONTROL);
-    lcdWrite8BData(0x8);
+    // Set LCD to use BGR instead of RGB and configure rotation
+    lcdSetRotation(0);
 
     // Adjust LCD's brightness level
     lcdWrite8BCMD(CMD_WRITE_DISPLAY_BRIGHTNESS);
@@ -111,9 +141,9 @@ void initLCD() {
 }
 
 void lcdDrawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
-    if(x >= LCD_WIDTH || y >= LCD_HEIGHT || h < 1) return;
-    if(y + h - 1 >= LCD_HEIGHT) {
-        h = LCD_HEIGHT - y;
+    if(x >= _curWidth || y >= _curHeight || h < 1) return;
+    if(y + h - 1 >= _curHeight) {
+        h = _curHeight - y;
     }
     if(h < 2) {
         lcdDrawPixel(x, y, color);
@@ -127,9 +157,9 @@ void lcdDrawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
 }
 
 void lcdDrawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
-    if(x >= LCD_WIDTH || y >= LCD_HEIGHT || w < 1) return;
-    if(x + w - 1 >= LCD_WIDTH) {
-        w = LCD_WIDTH - x;
+    if(x >= _curWidth || y >= _curHeight || w < 1) return;
+    if(x + w - 1 >= _curWidth) {
+        w = _curWidth - x;
     }
     if(w < 2) {
         lcdDrawPixel(x, y, color);
@@ -143,12 +173,12 @@ void lcdDrawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
 }
 
 void lcdDrawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
-    if(x >= LCD_WIDTH || y >= LCD_HEIGHT || w < 1 || h < 1) return;
-    if((x + w - 1) >= LCD_WIDTH) {
-        w = LCD_WIDTH - x;
+    if(x >= _curWidth || y >= _curHeight || w < 1 || h < 1) return;
+    if((x + w - 1) >= _curWidth) {
+        w = _curWidth - x;
     }
-    if((y + h - 1) >= LCD_HEIGHT) {
-        h = LCD_WIDTH - y;
+    if((y + h - 1) >= _curHeight) {
+        h = _curWidth - y;
     }
     if(w == 1 || h == 1) {
         lcdDrawPixel(x, y, color);
@@ -165,7 +195,7 @@ void lcdDrawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 }
 
 void lcdDrawFillScreen(uint16_t color) {
-    lcdDrawFillRect(0, 0, LCD_WIDTH, LCD_HEIGHT, color);
+    lcdDrawFillRect(0, 0, _curWidth, _curHeight, color);
 }
 
 void lcdDrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
@@ -173,8 +203,8 @@ void lcdDrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
     bool steep;
     int16_t dx, dy, err, ystep, xbegin;
 
-	if ((y0 < 0 && y1 < 0) || (y0 > LCD_HEIGHT && y1 > LCD_HEIGHT)) return;
-	if ((x0 < 0 && x1 < 0) || (x0 > LCD_WIDTH && x1 > LCD_WIDTH)) return;
+	if ((y0 < 0 && y1 < 0) || (y0 > _curHeight && y1 > _curHeight)) return;
+	if ((x0 < 0 && x1 < 0) || (x0 > _curWidth && x1 > _curWidth)) return;
 	if (x0 < 0) x0 = 0;
 	if (x1 < 0) x1 = 0;
 	if (y0 < 0) y0 = 0;
@@ -277,8 +307,6 @@ int main() {
     stdio_init_all();
     initPins();
     initLCD();
-
-    lcdDrawLine(0, 0, 240, 320, COLOR_BLACK);
 
     while(true) {}
 }
