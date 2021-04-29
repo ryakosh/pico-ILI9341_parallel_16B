@@ -1,5 +1,7 @@
-#ifndef DEFINES_H
-#define DEFINES_H
+#ifndef ILI9341_DRIVER_H
+#define ILI9341_DRIVER_H
+
+#include "Adafruit_GFX.h"
 
 // LCD height and width
 #define LCD_HEIGHT 320
@@ -83,4 +85,23 @@
 
 #define swap(a, b) { int16_t t = a; a = b; b = t; }
 
-#endif // DEFINES_H
+uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
+    return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+}
+
+class ILI9341Driver: public Adafruit_GFX {
+public:
+    ILI9341Driver(int16_t w, int16_t h);
+
+    void begin();
+    void drawPixel(int16_t x, int16_t y, uint16_t color);
+    void setRotation(uint8_t r);
+    void invertDisplay(bool i);
+    void setAddrWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+    void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+    void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+    void fillScreen(uint16_t color);
+};
+
+#endif // ILI9341_DRIVER_H

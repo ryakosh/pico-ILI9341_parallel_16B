@@ -7,9 +7,12 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 
-add_executable(lcd
-        lcd.c
+add_executable(ili9341_driver
+        ili9341_driver.cpp
         )
 
-target_link_libraries(lcd pico_stdlib)
-pico_add_extra_outputs(lcd)
+include_directories( "Adafruit" ) 
+add_subdirectory(Adafruit)
+
+target_link_libraries(ili9341_driver pico_stdlib)
+pico_add_extra_outputs(ili9341_driver)
