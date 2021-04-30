@@ -172,11 +172,7 @@ public:
   /**********************************************************************/
   void cp437(bool x = true) { _cp437 = x; }
 
-// #if ARDUINO >= 100
-//   virtual size_t write(uint8_t);
-// #else
-//   virtual void write(uint8_t);
-// #endif
+  virtual size_t write(uint8_t);
 
   /************************************************************************/
   /*!
