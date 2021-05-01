@@ -85,6 +85,13 @@
 
 #define swap(a, b) { int16_t t = a; a = b; b = t; }
 
+void lcdWrite8B(uint8_t data);
+void lcdWrite16B(uint16_t data);
+void lcdWrite8BCMD(uint8_t cmd);
+void lcdWrite8BData(uint8_t data);
+void lcdWrite16BData(uint16_t data);
+void initPins();
+
 uint16_t color565(uint8_t r, uint8_t g, uint8_t b) {
     return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
 }

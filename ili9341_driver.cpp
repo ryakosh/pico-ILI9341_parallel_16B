@@ -214,14 +214,3 @@ size_t ILI9341Driver::print(const uint8_t *buf, size_t s) {
 size_t ILI9341Driver::print(const char *str, size_t s) {
     return print((uint8_t *) str, s);
 }
-
-int main() {
-    ILI9341Driver *d = new ILI9341Driver(LCD_WIDTH, LCD_HEIGHT);
-
-    stdio_init_all();
-    initPins();
-
-    d->begin();
-
-    while(true) {}
-}
